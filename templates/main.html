@@ -19,12 +19,45 @@
         </aside>
 
         <main>
-            <header>Привет, страдалец!</header>
+            <div class="adder">
+                <div class="item">
+                    <form>
+                        <p>+ предмет</p>
+                        <input type="text" placeholder="учебный предмет">
+                        <button>Добавить</button>
+                    </form>
+                </div>
+
+                <div class="item">
+                    <form>
+                        <p>+ задание</p>
+                        <label for="subject">Предмет:</label>
+                        <select name="subject" id="subject">
+                            <option value="ПИС">ПИС</option>
+                            <option value="РКСП">РКСП</option>
+                            <option value="Бэк">Бэк</option>
+                        </select>
+                        <label for="task">Задание:</label>
+                        <input type="text" id="task" placeholder="задание">
+                        <label for="deadline">Дедлайн:</label>
+                        <input type="date" id="deadline" min="2026-05-05">
+                        <button>Добавить</button>
+                    </form>
+                </div>
+            </div>
         </main>
 
+        <aside class="right-section">
+            <h2>Ближайшие дедлайны:</h2>
+            <div class="deadline-list">
+                <p>Предмет: ПИС; Задание: 2 практика; Дедлайн: 02-04-2026
+                </p>
 
+                <p>Предмет: РКСП; Задание: 3 практика; Дедлайн: 03-04-2026
+                </p>
+            </div>
+        </aside>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
