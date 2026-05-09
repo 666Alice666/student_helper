@@ -84,7 +84,6 @@ a{
     box-shadow: 5px 5px 9px #616161;
 }
 
-
 .adder form{
     display: flex;
     flex-direction: column;
@@ -164,4 +163,48 @@ h2{
     border-radius: 8px;
     box-shadow: 5px 5px 9px #616161;
     font-size: 20px;
+}
+
+.tasksList{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    padding: 80px 10px 20px 70px;
+    gap: 50px;
+}
+
+.task-card{
+    flex-basis: 50%;
+    padding: 15px 30px;
+    background-color: #7a558f;
+    border-radius: 30px;
+    box-shadow: 5px 5px 9px #616161;
+    font-size: 20px;
+}
+
+.btn-done{
+    background: #4caf50;
+    color: #fff;
+    font-size: 12px;
+    padding: 10px 15px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.btn-delete{
+    background: #b00e53;
+    color: #fff;
+    font-size: 12px;
+    padding: 10px 15px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-top: 10px;
+    cursor: pointer;
 }

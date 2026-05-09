@@ -168,18 +168,16 @@ if (window.location.pathname === '/mytasks') {
                 }
 
                 const html = unfinished.map(t => `
-                    <div class="task-card" data-task-id="${t.id}" style="border-bottom:1px solid #eee; padding:12px 0;">
+                    <div class="task-card" data-task-id="${t.id}">
                         <div><strong>${t.subject_title}</strong>: ${t.description}</div>
-                        <div style="font-size:0.9em; color:#666;">
+                        <div>
                             📅 ${new Date(t.deadline).toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short' })}
                         </div>
-                        <div style="margin-top: 8px;">
-                            <button class="btn-done" data-id="${t.id}"
-                                    style="background:#4CAF50; color:white; border:none; padding:4px 8px; margin-right:6px; font-size:0.85rem;">
+                        <div>
+                            <button class="btn-done" data-id="${t.id}">
                                 ✅ Выполнено
                             </button>
-                            <button class="btn-delete" data-id="${t.id}"
-                                    style="background:#f44336; color:white; border:none; padding:4px 8px; font-size:0.85rem;">
+                            <button class="btn-delete" data-id="${t.id}">
                                 🗑 Удалить
                             </button>
                         </div>
