@@ -22,27 +22,26 @@
         <main>
             <div class="adder">
                 <div class="item">
-                    <form>
+                    <form id="addSubjectForm">
                         <p>+ предмет</p>
-                        <input type="text" placeholder="учебный предмет">
-                        <button>Добавить</button>
+                        <input type="text" id="subjectName" placeholder="учебный предмет" required>
+                        <button type="submit">Добавить</button>
                     </form>
                 </div>
 
                 <div class="item">
-                    <form>
+                    <form id="addTaskForm">
                         <p>+ задание</p>
-                        <label for="subject">Предмет:</label>
-                        <select name="subject" id="subject">
-                            <option value="ПИС">ПИС</option>
-                            <option value="РКСП">РКСП</option>
-                            <option value="Бэк">Бэк</option>
+                        <label for="subjectSelect">Предмет:</label>
+                        <select name="subject" id="subjectSelect" required>
+                            <!-- будет заполнено JS -->
+                            <option value="">Выберите предмет</option>
                         </select>
-                        <label for="task">Задание:</label>
-                        <input type="text" id="task" placeholder="задание">
-                        <label for="deadline">Дедлайн:</label>
-                        <input type="date" id="deadline" min="2026-05-05">
-                        <button>Добавить</button>
+                        <label for="taskDescription">Задание:</label>
+                        <input type="text" id="taskDescription" placeholder="задание" required>
+                        <label for="taskDeadline">Дедлайн:</label>
+                        <input type="date" id="taskDeadline" min="2026-05-05" required>
+                        <button type="submit">Добавить</button>
                     </form>
                 </div>
             </div>
@@ -50,14 +49,12 @@
 
         <aside class="right-section">
             <h2>Ближайшие дедлайны:</h2>
-            <div class="deadline-list">
-                <p>Предмет: ПИС; Задание: 2 практика; Дедлайн: 02-04-2026
-                </p>
-
-                <p>Предмет: РКСП; Задание: 3 практика; Дедлайн: 03-04-2026
-                </p>
+            <div id="deadlineList" class="deadline-list">
+                <!-- Сюда будет вставляться HTML через JS -->
+                <p id="loading">Загрузка задач...</p>
             </div>
         </aside>
     </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

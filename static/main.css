@@ -31,8 +31,10 @@ a{
     box-shadow: 5px 5px 9px #222222;
 }
 
+
 .container .left-section .sidebar{
     display: flex;
+    position: fixed;
     flex-direction: column;
     padding-top: 100px;
     gap: 30px;
@@ -60,7 +62,7 @@ a{
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 80px 30px 70px;
+    padding: 80px 10px 20px 70px;
     gap: 50px;
 }
 
@@ -161,4 +163,5 @@ h2{
     background-color: #ab2a73;
     border-radius: 8px;
     box-shadow: 5px 5px 9px #616161;
+    font-size: 20px;
 }
