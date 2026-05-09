@@ -11,10 +11,10 @@
         <aside class="left-section">
             <h1>Помощник студента</h1>
             <div class="sidebar">
-                <a id="active" href="#">Главная</a>
-                <a href="#">Мои задачи</a>
-                <a href="#">Выполненные задачи</a>
-                <a href="#">Статистика</a>
+                <a id="active" href="{{ url_for('main')}}">Главная</a>
+                <a href="{{ url_for('mytasks')}}">Мои задачи</a>
+                <a href="{{ url_for('finished')}}">Выполненные задачи</a>
+                <a href="{{ url_for('statistics')}}">Статистика</a>
             </div>
         </aside>
 
