@@ -269,3 +269,47 @@ if (window.location.pathname === '/finished') {
         await loadFinishedTasks();
     });
 }
+
+// --- Для страницы "Статистика" (statistics.html) ---
+if (window.location.pathname === '/statistics') {
+    document.addEventListener('DOMContentLoaded', async () => {
+        async function loadStatistics() {
+            try {
+                const tasks = await apiRequest('/api/tasks', { method: 'GET' });
+
+                const total = tasks.length;
+                const completed = tasks.filter(t => t.is_done).length;
+                const pending = total - completed;
+                const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+                const container = document.getElementById('statsContainer');
+                if (!container) return;
+
+                container.innerHTML = `
+                    <div class="stat-card">
+                        <h3>Общее количество задач</h3>
+                        <p>${total}</p>
+                    </div>
+                    <div class="stat-card completed">
+                        <h3>Выполнено задач</h3>
+                        <p>${completed}</p>
+                    </div>
+                    <div class="stat-card pending">
+                        <h3>Осталось задач</h3>
+                        <p>${pending}</p>
+                    </div>
+                    <div class="stat-card percentage">
+                        <h3>Процент выполненных</h3>
+                        <p class="percentage-value">${percentage}%</p>
+                    </div>
+                `;
+
+            } catch (err) {
+                console.error('Ошибка загрузки статистики:', err);
+                document.getElementById('statsContainer').innerHTML = `<p style="color:red">❌ Ошибка: ${err.message}</p>`;
+            }
+        }
+
+        await loadStatistics();
+    });
+}

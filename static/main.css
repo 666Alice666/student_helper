@@ -209,3 +209,49 @@ h2{
     margin-top: 10px;
     cursor: pointer;
 }
+
+.stats-container{
+    padding: 20px;
+    margin: 50px;
+    max-width: 800px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.stat-card{
+    background: white;
+    margin: 10px 0;
+    padding: 16px;
+    border-radius: 6px;
+    border-left: 4px solid #007BFF; /* Синий акцент */
+}
+
+.stat-card.completed{
+    border-left-color: #28a745; /* Зелёный для выполненных */
+}
+
+.stat-card.pending{
+    border-left-color: #ffc107; /* Жёлтый для невыполненных */
+}
+
+.stat-card.percentage{
+border-left-color: #17a2b8; /* Бирюзовый для процента */
+}
+
+h3{
+    margin: 0 0 8px 0;
+    font-size: 1.1em;
+}
+
+.stat-card p {
+    margin: 0;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #333;
+}
+
+.percentage-value {
+    font-size: 2em;
+    color: #17a2b8;
+}
