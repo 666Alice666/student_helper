@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="{{ url_for( 'static', filename='main.css')}}">
-    <title>Student Helper</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css')}}">
+    <title>Мои задачи</title>
 </head>
-<body>
+<body class="page-mytasks">
     <div class="container">
         <aside class="left-section">
             <h1>Помощник студента</h1>
@@ -19,6 +19,14 @@
             </div>
         </aside>
 
+        <main>
+            <h2>Невыполненные задачи</h2>
+            <div id="tasksList">
+                <p>Загрузка задач...</p>
+            </div>
+        </main>
     </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

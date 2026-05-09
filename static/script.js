@@ -1,4 +1,5 @@
-// Функция для получения текущего user_id из куки
+// script.js
+
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -14,7 +15,6 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// Универсальная функция для отправки запросов с кукой сессии
 async function apiRequest(url, options = {}) {
     const sessionCookie = getCookie('session');
     const headers = {
@@ -27,126 +27,206 @@ async function apiRequest(url, options = {}) {
         headers: { ...headers, ...options.headers }
     });
 
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
+    // Если ответ без тела (204, 205), возвращаем null
+    if (response.status === 204 || response.status === 205) {
+        return null;
     }
 
-    return response.json();
-}
-
-// 1. Загрузить предметы и заполнить select
-async function loadSubjects() {
+    // Иначе парсим JSON
     try {
-        const subjects = await apiRequest('/api/subjects', { method: 'GET' });
-        const select = document.getElementById('subjectSelect');
-        select.innerHTML = '<option value="">Выберите предмет</option>';
-        subjects.forEach(subject => {
-            const option = document.createElement('option');
-            option.value = subject.id;
-            option.textContent = subject.title;
-            select.appendChild(option);
-        });
+        return await response.json();
     } catch (err) {
-        console.error('Ошибка загрузки предметов:', err);
-        document.getElementById('deadlineList').innerHTML = `<p style="color:red">❌ Ошибка: ${err.message}</p>`;
+        console.warn('Не удалось распарсить JSON (возможно, пустой ответ)', response.status, response.statusText);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 }
 
-// 2. Добавить новый предмет
-document.getElementById('addSubjectForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const nameInput = document.getElementById('subjectName');
-    const name = nameInput.value.trim();
-    if (!name) return;
-
-    try {
-        const newSubject = await apiRequest('/api/subjects', {
-            method: 'POST',
-            body: JSON.stringify({ title: name })
-        });
-        alert(`✅ Предмет "${newSubject.title}" добавлен!`);
-        nameInput.value = '';
-        await loadSubjects(); // Обновляем список
-    } catch (err) {
-        alert(`❌ Ошибка: ${err.message}`);
-        console.error(err);
-    }
-});
-
-// 3. Добавить новую задачу
-document.getElementById('addTaskForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const subjectId = document.getElementById('subjectSelect').value;
-    const description = document.getElementById('taskDescription').value.trim();
-    const deadline = document.getElementById('taskDeadline').value;
-
-    if (!subjectId || !description || !deadline) {
-        alert('⚠️ Пожалуйста, заполните все поля.');
-        return;
-    }
-
-    try {
-        const newTask = await apiRequest('/api/tasks', {
-            method: 'POST',
-            body: JSON.stringify({
-                subject_id: parseInt(subjectId),
-                description: description,
-                deadline: deadline
-            })
-        });
-        alert(`✅ Задача "${description}" добавлена!`);
-        document.getElementById('taskDescription').value = '';
-        document.getElementById('taskDeadline').value = '';
-        await loadTasks(); // Обновляем список задач
-    } catch (err) {
-        alert(`❌ Ошибка: ${err.message}`);
-        console.error(err);
-    }
-});
-
-// 4. Загрузить и отобразить только 5 ближайших НЕВЫПОЛНЕННЫХ задач
-async function loadTasks() {
-    try {
-        const tasks = await apiRequest('/api/tasks', { method: 'GET' });
-
-        // Фильтруем: только невыполненные (is_done === false)
-        const unfinishedTasks = tasks.filter(task => !task.is_done);
-
-        // Сортируем по дедлайну (ближайшие сверху)
-        unfinishedTasks.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
-
-        // Берём только первые 5
-        const closestTasks = unfinishedTasks.slice(0, 5);
-
-        const container = document.getElementById('deadlineList');
-
-        if (closestTasks.length === 0) {
-            container.innerHTML = '<p>Нет ближайших задач. Добавьте новую!</p>';
-            return;
+// --- Для главной страницы (main.html) ---
+if (window.location.pathname === '/main' || window.location.pathname === '/') {
+    document.addEventListener('DOMContentLoaded', async () => {
+        // 1. Загрузить предметы
+        async function loadSubjects() {
+            try {
+                const subjects = await apiRequest('/api/subjects', { method: 'GET' });
+                const select = document.getElementById('subjectSelect');
+                if (!select) return;
+                select.innerHTML = '<option value="">Выберите предмет</option>';
+                subjects.forEach(subject => {
+                    const option = document.createElement('option');
+                    option.value = subject.id;
+                    option.textContent = subject.title;
+                    select.appendChild(option);
+                });
+            } catch (err) {
+                console.error('Ошибка загрузки предметов:', err);
+            }
         }
 
-        const html = closestTasks.map(task => `
-            <div class="task-item">
-                <p><strong>${task.subject_title}</strong>: ${task.description}<br>📅 ${new Date(task.deadline).toLocaleDateString('ru-RU', {
-                        weekday: 'short',
-                        day: 'numeric',
-                        month: 'short'
-                    })}
-                </p>
-            </div>
-        `).join('');
+        // 2. Добавить предмет
+        const addSubjectForm = document.getElementById('addSubjectForm');
+        if (addSubjectForm) {
+            addSubjectForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const nameInput = document.getElementById('subjectName');
+                const name = nameInput.value.trim();
+                if (!name) return;
 
-        container.innerHTML = html;
+                try {
+                    await apiRequest('/api/subjects', {
+                        method: 'POST',
+                        body: JSON.stringify({ title: name })
+                    });
+                    alert(`✅ Предмет "${name}" добавлен!`);
+                    nameInput.value = '';
+                    await loadSubjects();
+                } catch (err) {
+                    alert(`❌ Ошибка: ${err.message}`);
+                }
+            });
+        }
 
-    } catch (err) {
-        console.error('Ошибка загрузки задач:', err);
-        document.getElementById('deadlineList').innerHTML = `<p style="color:red">❌ Ошибка: ${err.message}</p>`;
-    }
+        // 3. Добавить задачу
+        const addTaskForm = document.getElementById('addTaskForm');
+        if (addTaskForm) {
+            addTaskForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const subjectId = document.getElementById('subjectSelect').value;
+                const description = document.getElementById('taskDescription').value.trim();
+                const deadline = document.getElementById('taskDeadline').value;
+
+                if (!subjectId || !description || !deadline) {
+                    alert('⚠️ Пожалуйста, заполните все поля.');
+                    return;
+                }
+
+                try {
+                    await apiRequest('/api/tasks', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            subject_id: parseInt(subjectId),
+                            description,
+                            deadline
+                        })
+                    });
+                    alert(`✅ Задача "${description}" добавлена!`);
+                    document.getElementById('taskDescription').value = '';
+                    document.getElementById('taskDeadline').value = '';
+                    await loadClosestTasks();
+                } catch (err) {
+                    alert(`❌ Ошибка: ${err.message}`);
+                }
+            });
+        }
+
+        // 4. Загрузить ближайшие дедлайны
+        async function loadClosestTasks() {
+            try {
+                const tasks = await apiRequest('/api/tasks', { method: 'GET' });
+                const unfinished = tasks.filter(t => !t.is_done);
+                unfinished.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+                const closest = unfinished.slice(0, 5);
+
+                const container = document.getElementById('deadlineList');
+                if (!container) return;
+
+                if (closest.length === 0) {
+                    container.innerHTML = '<p>Нет ближайших задач.</p>';
+                    return;
+                }
+
+                const html = closest.map(t => `
+                    <div>
+                        <p><strong>${t.subject_title}</strong>: ${t.description}<br> 📅 ${new Date(t.deadline).toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short' })}</p>
+                    </div>
+                `).join('');
+                container.innerHTML = html;
+            } catch (err) {
+                console.error('Ошибка загрузки дедлайнов:', err);
+                document.getElementById('deadlineList').innerHTML = `<p style="color:red">❌ ${err.message}</p>`;
+            }
+        }
+
+        await loadSubjects();
+        await loadClosestTasks();
+    });
 }
 
-// Инициализация при загрузке страницы
-document.addEventListener('DOMContentLoaded', async () => {
-    await loadSubjects();
-    await loadTasks();
-});
+// --- Для страницы "Мои задачи" (mytasks.html) ---
+if (window.location.pathname === '/mytasks') {
+    document.addEventListener('DOMContentLoaded', async () => {
+        async function loadMyTasks() {
+            try {
+                const tasks = await apiRequest('/api/tasks', { method: 'GET' });
+                const unfinished = tasks.filter(t => !t.is_done);
+
+                const container = document.getElementById('tasksList');
+                if (!container) return;
+
+                if (unfinished.length === 0) {
+                    container.innerHTML = '<p>Нет невыполненных задач. Добавьте новую!</p>';
+                    return;
+                }
+
+                const html = unfinished.map(t => `
+                    <div class="task-card" data-task-id="${t.id}" style="border-bottom:1px solid #eee; padding:12px 0;">
+                        <div><strong>${t.subject_title}</strong>: ${t.description}</div>
+                        <div style="font-size:0.9em; color:#666;">
+                            📅 ${new Date(t.deadline).toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short' })}
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <button class="btn-done" data-id="${t.id}"
+                                    style="background:#4CAF50; color:white; border:none; padding:4px 8px; margin-right:6px; font-size:0.85rem;">
+                                ✅ Выполнено
+                            </button>
+                            <button class="btn-delete" data-id="${t.id}"
+                                    style="background:#f44336; color:white; border:none; padding:4px 8px; font-size:0.85rem;">
+                                🗑 Удалить
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                container.innerHTML = html;
+
+                // Обработчики кнопок — только после рендера!
+                document.querySelectorAll('.btn-done').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const id = parseInt(btn.getAttribute('data-id'));
+                        try {
+                            await apiRequest(`/api/tasks/${id}`, {
+                                method: 'PUT',
+                                body: JSON.stringify({ is_done: true })
+                            });
+                            const card = btn.closest('.task-card');
+                            card.remove();
+                            alert('✅ Задача отмечена как выполненная!');
+                        } catch (err) {
+                            alert(`❌ ${err.message}`);
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.btn-delete').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const id = parseInt(btn.getAttribute('data-id'));
+                        if (!confirm('Удалить эту задачу?')) return;
+                        try {
+                            await apiRequest(`/api/tasks/${id}`, { method: 'DELETE' });
+                            const card = btn.closest('.task-card');
+                            card.remove();
+                            alert('🗑 Задача удалена!');
+                        } catch (err) {
+                            alert(`❌ ${err.message}`);
+                        }
+                    });
+                });
+
+            } catch (err) {
+                console.error('Ошибка загрузки задач:', err);
+                document.getElementById('tasksList').innerHTML = `<p style="color:red">❌ ${err.message}</p>`;
+            }
+        }
+
+        await loadMyTasks();
+    });
+}
