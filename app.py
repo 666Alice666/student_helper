@@ -23,7 +23,6 @@ def create_app():
             if not name or not email or not password:
                 return "❌ Все поля обязательны!", 400
 
-            # Важно: используем db.session через app.app_context()
             with app.app_context():
                 existing_user = User.query.filter_by(email=email).first()
                 if existing_user:
@@ -39,7 +38,7 @@ def create_app():
         return render_template('registr.html')
 
     @app.route("/login", methods=[
-        'POST'])  # Только POST, т.к. данные отправляются из формы
+        'POST'])
     def login():
         email = request.form.get('email')
         password = request.form.get('password')
@@ -49,36 +48,31 @@ def create_app():
 
         user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.password_hash, password):
-            # Успешный вход - сохраняем ID пользователя в сессии
             session['user_id'] = user.id
-            return redirect(url_for('main'))  # Перенаправляем на главную
+            return redirect(url_for('main'))
         else:
             return "❌ Неверный email или пароль!", 401
 
-    # --- Защита маршрутов (проверка сессии) ---
     def login_required(f):
         from functools import wraps
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if 'user_id' not in session:
                 return redirect(
-                    url_for('registr'))  # Если не вошёл - на регистрацию
+                    url_for('registr'))
             return f(*args, **kwargs)
 
         return decorated_function
 
-    # --- Главная страница (теперь защищена) ---
     @app.route("/")
     @app.route("/main")
     @login_required
     def main():
         return render_template('main.html')
 
-    # --- Остальные страницы тоже защищаем ---
     @app.route("/mytasks")
     @login_required
     def mytasks():
-        # Пока что просто возвращаем шаблон, позже будем получать задачи из БД
         return render_template('mytasks.html')
 
     @app.route("/finished")
@@ -91,10 +85,9 @@ def create_app():
     def statistics():
         return render_template('statistics.html')
 
-    # --- Маршрут для выхода ---
     @app.route('/logout')
     def logout():
-        session.pop('user_id', None)  # Удаляем user_id из сессии
+        session.pop('user_id', None)
         return redirect(url_for('registr'))
 
     return app

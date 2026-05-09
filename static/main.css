@@ -34,6 +34,7 @@ a{
 .container .left-section .sidebar{
     display: flex;
     flex-direction: column;
+    padding-top: 100px;
     gap: 30px;
 }
 
@@ -45,6 +46,13 @@ a{
 
 .container .left-section .sidebar a#active{
     color: #ab2a73;
+}
+
+
+.container .left-section .sidebar a#exit{
+    color: #b5b5b5;
+    font-size: 24px;
+    padding-top: 70px;
 }
 
 
