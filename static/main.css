@@ -165,12 +165,13 @@ h2{
     font-size: 20px;
 }
 
-.tasksList{
+.tasksList, .tasks-grid{
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     padding: 80px 10px 20px 70px;
     gap: 50px;
 }
+
 
 .task-card{
     flex-basis: 50%;

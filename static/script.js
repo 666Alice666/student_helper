@@ -228,3 +228,44 @@ if (window.location.pathname === '/mytasks') {
         await loadMyTasks();
     });
 }
+
+// --- Для страницы "Выполненные задачи" (finished.html) ---
+if (window.location.pathname === '/finished') {
+    document.addEventListener('DOMContentLoaded', async () => {
+        async function loadFinishedTasks() {
+            try {
+                const tasks = await apiRequest('/api/tasks', { method: 'GET' });
+                // Фильтруем только выполненные
+                const finished = tasks.filter(t => t.is_done);
+
+                const container = document.getElementById('finishedTasksList');
+                if (!container) return;
+
+                if (finished.length === 0) {
+                    container.innerHTML = '<p>Нет выполненных задач.</p>';
+                    return;
+                }
+
+                const html = finished.map(t => `
+                    <div class="task-card">
+                        <div><strong>${t.subject_title}</strong>: ${t.description}</div>
+                        <div style=>
+                            📅 ${new Date(t.deadline).toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short' })}
+                        </div>
+                        <div>
+                            ✅ Выполнено
+                        </div>
+                    </div>
+                `).join('');
+
+                container.innerHTML = html;
+
+            } catch (err) {
+                console.error('Ошибка загрузки выполненных задач:', err);
+                document.getElementById('finishedTasksList').innerHTML = `<p style="color:red">❌ ${err.message}</p>`;
+            }
+        }
+
+        await loadFinishedTasks();
+    });
+}
